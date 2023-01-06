@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="/assets/css/element/index.css">
+    <link rel="stylesheet" href="/assets/css/index.css">
+
+    <script src="/assets/js/jquery-3.5.1.min.js"></script>
+    <script src="/assets/js/vue.js"></script>
+    <script src="/assets/js/element/index.js"></script>
+    <script src="/assets/js/index.js"></script>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <el-container>
+            <el-header>
+                <h1>这是header</h1>
+            </el-header>
+            <el-main>
+                <div class="flex_content">
+                    <div class="left">
+                        <el-form ref="form" label-width="80px">
+                            <div v-for="(item, key) in combination">
+                                <div class="server_header">
+                                    <span>服务器{{key+1}}</span>
+                                    <div class="button_tools">
+                                        <el-button @click="addServer">+</el-button>
+                                        <el-button @click="reduceServer(key)">-</el-button>
+                                        <el-button @click="toggleServerContent(key)">{{item.visible?'收起':'展开'}}</el-button>
+                                    </div>
+                                </div>
+
+                                <div :class="'server_content_' + key" v-if="item.visible">
+                                    <el-form-item label="服务名称">
+                                        <el-input v-model="item.services_name" size="small"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="容器名称">
+                                        <el-input v-model="item.container_name" size="small"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="端口">
+                                        <el-button @click="addPorts(key)" size="small">+</el-button>
+                                        <div class="multiple_attr" v-for="(p, k) in item.ports">
+                                            <el-input v-model="p.one" size="small"></el-input>:<el-input v-model="p.two" size="small"></el-input>
+                                            <el-button @click="reducePorts(key, k)" size="small">-</el-button>
+                                        </div>
+                                    </el-form-item>
+                                    <el-form-item label="映射目录">
+                                        <el-button @click="addDir(key)" size="small">+</el-button>
+                                        <div class="multiple_attr" v-for="(p, k) in item.volumes">
+                                            <el-input v-model="p.one" size="small"></el-input>:<el-input v-model="p.two" size="small"></el-input>
+                                            <el-button @click="reduceDir(key, k)" size="small">-</el-button>
+                                        </div>
+                                    </el-form-item>
+                                    <el-form-item label="配置">
+                                        <span>基础配置</span>
+                                        <div class="multiple_attr">
+                                            <el-tag>EULA</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.EULA" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    必须为true，否则无法开服。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>SERVER_NAME</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.SERVER_NAME" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    服务器名称
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>VERSION</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.VERSION" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    mc版本号
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>TYPE</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.TYPE" size="small">
+                                                <el-option label="原版服务器" value=""></el-option>
+                                                <el-option label="Forge" value="FORGE"></el-option>
+                                                <el-option label="Fabric" value="FABRIC"></el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    是否使用mod
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr" v-if="item.environment.TYPE === 'FORGE'">
+                                            <el-tag>FORGE_VERSION</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.FORGE_VERSION" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    forge版本号
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr" v-if="item.environment.TYPE === 'FABRIC'">
+                                            <el-tag>FABRIC_LAUNCHER_VERSION</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.FABRIC_LAUNCHER_VERSION" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    fabric launcher版本号
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr" v-if="item.environment.TYPE === 'FABRIC'">
+                                            <el-tag>FABRIC_LOADER_VERSION</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.FABRIC_LOADER_VERSION" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    fabric loader版本号
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>ICON</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.ICON" size="small"></el-input>
+                                            <el-checkbox v-model="item.environment.OVERRIDE_ICON">更新覆盖</el-checkbox>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    服务器图标。
+                                                    <br>
+                                                    默认情况下，已设置的服务器图标不会被覆盖。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <span>Server.properties文件配置</span>
+                                        <div class="multiple_attr">
+                                            <el-tag>allow-flight</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.ALLOW_FLIGHT" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    允许玩家在安装添加飞行功能的mod前提下在生存模式下飞行。
+                                                    <br>
+                                                    允许飞行可能会使恶意破坏者更加常见，因为此设定会使他们更容易达成目的。在创造模式下无作用。
+                                                    <br>
+                                                    false - 不允许飞行。悬空超过5秒的玩家会被踢出服务器。
+                                                    <br>
+                                                    true - 允许飞行。玩家得以使用任何能飞行的mod飞行。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>allow-nether</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.ALLOW_NETHER" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    允许玩家进入下界。
+                                                    <br>
+                                                    false - 下界传送门不会生效。
+                                                    <br>
+                                                    true - 玩家可以通过下界传送门前往下界。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>broadcast-console-to-ops</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.BROADCAST_CONSOLE_TO_OPS" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    向所有在线OP发送所执行命令的输出。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>broadcast-rcon-to-ops</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.BROADCAST_RCON_TO_OPS" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    向所有在线OP发送通过RCON执行的命令的输出。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>difficulty</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.DIFFICULTY" size="small">
+                                                <el-option value="peaceful">peaceful</el-option>
+                                                <el-option value="easy">easy</el-option>
+                                                <el-option value="normal">normal</el-option>
+                                                <el-option value="hard">hard</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    定义服务器的游戏难度（例如生物对玩家造成的伤害，饥饿和中毒对玩家的影响方式等）。
+                                                    <br>
+                                                    如果设置了旧的数字ID，则会自动转化为英文的难度名称。
+                                                    <br>
+                                                    peaceful (0) - 和平
+                                                    <br>
+                                                    easy (1) - 简单
+                                                    <br>
+                                                    normal (2) - 普通
+                                                    <br>
+                                                    hard (3) - 困难。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>enable-command-block</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.ENABLE_COMMAND_BLOCK" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    是否启用命令方块。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>enable-jmx-monitoring</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.ENABLE_JMX" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    暴露一个具有对象名`net.minecraft.server:type=Server`的`MBean`和两个属性`averageTickTime`和`tickTimes`用于暴露以毫秒为单位的tick时间。
+                                                    <br>
+                                                    为了启用JRE的JMX，你需要添加<a href="https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html">在此处所述</a>的一些JVM标志。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>enable-query</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.ENABLE_QUERY" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    允许使用GameSpy4协议的服务器监听器。用于获取服务器信息。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>enable-rcon</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.ENABLE_RCON" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    是否允许远程访问服务器控制台。
+                                                    <br>
+                                                    由于RCON协议传输数据时没有加密，所以不建议把RCON暴露在互联网上。RCON客户端和服务端交换的所有数据（包括RCON密码）都会泄露给正在监听此连接的人。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>enable-status</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.ENABLE_STATUS" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    使服务器在服务器列表中看起来是“在线”的。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>enforce-whitelist</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.ENFORCE_WHITELIST" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    在服务器上强制执行白名单。
+                                                    <br>
+                                                    当启用后，不在白名单（前提是启用）中的用户将在服务器重新加载白名单文件后从服务器踢出。
+                                                    <br>
+                                                    true - 不在白名单上的用户会被踢出。
+                                                    <br>
+                                                    false - 不在白名单上的在线用户不会被踢出。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>entity-broadcast-range-percentage</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.ENTITY_BROADCAST_RANGE_PERCENTAGE" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    此选项控制实体需要距离玩家有多近才会将数据包发送给客户端。更高的数值意味着实体可以在更远的地方就被渲染，同时也可能提高增加延迟的概率。
+                                                    <br>
+                                                    这个值是以默认值的百分比来表示的。例如：将此值设为50，表示将渲染正常情况下一半距离以内的生物。
+                                                    <br>
+                                                    此功能模仿了客户端视频设置中的功能，而不像客户端的渲染距离设置一样只能在服务器设置的限制下调整渲染距离。
+                                                    <br>
+                                                    值区间：整数（10-1000）
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>force-gamemode</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.FORCE_GAMEMODE" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    强制玩家加入时为默认游戏模式。
+                                                    <br>
+                                                    false - 玩家将以退出前的游戏模式加入
+                                                    <br>
+                                                    true - 玩家总是以默认游戏模式加入
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>function-permission-level</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.FUNCTION_PERMISSION_LEVEL" size="small">
+                                                <el-option value="1">1</el-option>
+                                                <el-option value="2">2</el-option>
+                                                <el-option value="3">3</el-option>
+                                                <el-option value="4">4</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    设定函数的默认权限等级。
+                                                    <br>
+                                                    4个等级的详情见 #op-permission-level。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>gamemode</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.MODE" size="small">
+                                                <el-option value="survival">survival</el-option>
+                                                <el-option value="creative">creative</el-option>
+                                                <el-option value="adventure">adventure</el-option>
+                                                <el-option value="spectator">spectator</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    定义默认游戏模式。
+                                                    <br>
+                                                    如果值是旧用的数字，会静默转换为对应游戏模式的英文名称。
+                                                    <br>
+                                                    survival (0) - 生存模式
+                                                    <br>
+                                                    creative (1) - 创造模式
+                                                    <br>
+                                                    adventure (2) - 冒险模式
+                                                    <br>
+                                                    spectator (3) - 旁观模式
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>generate-structures</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.GENERATE_STRUCTURES" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    定义是否能生成<a href="https://minecraft.fandom.com/zh/wiki/生成结构">结构</a>（例如村庄）。
+                                                    <br>
+                                                    false - 新生成的区块中将不包含结构。
+                                                    <br>
+                                                    true - 新生成的区块中将包含结构。
+                                                    <br>
+                                                    注：即使设为false，地牢仍然会生成。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>generator-settings</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.GENERATOR_SETTINGS" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    本属性质用于自定义世界的生成。详见<a href="https://minecraft.fandom.com/zh/wiki/超平坦世界" target="_blank">超平坦世界</a>和<a href="https://minecraft.fandom.com/zh/wiki/自定义" target="_blank">自定义</a>了解正确的设定及例子。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>hardcore</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.HARDCORE" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    如果设为 true，服务器难度的设置会被忽略并且设为 hard（困难），玩家在死后会自动切换至旁观模式。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>initial-disabled-packs</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.INITIAL_DISABLED_PACKS" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    需要在创建世界过程中禁用的数据包名称，以逗号分隔。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>initial-enabled-packs</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.INITIAL_ENABLED_PACKS" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    需要在创建世界过程中启用的数据包名称，以逗号分隔。特别地，功能数据包必须在此指定才能生效。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>level-name</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.LEVEL" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    “level-name”的值将作为世界名称及其文件夹名。你也可以把你已生成的世界存档复制过来，然后让这个值与那个文件夹的名字保持一致，服务器就可以载入该存档。
+                                                    <br>
+                                                    部分字符，例如 `'`（单引号）可能需要在前面加反斜杠号 `\` 才能被正常应用。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>level-seed</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.SEED" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    与单人游戏类似，为你的世界定义一个<a href="https://minecraft.fandom.com/zh/wiki/种子（世界生成）" target="_blank">种子</a>。
+                                                    <br>
+                                                    这里有一些例子：minecraft，404，1a2b3c。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>level-type</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.LEVEL_TYPE" size="small">
+                                                <el-option value="minecraft:normal">minecraft:normal</el-option>
+                                                <el-option value="minecraft:flat">minecraft:flat</el-option>
+                                                <el-option value="minecraft:large_biomes">minecraft:large_biomes</el-option>
+                                                <el-option value="minecraft:amplified">minecraft:amplified</el-option>
+                                                <el-option value="minecraft:single_biome_surface">minecraft:single_biome_surface</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    使用世界预设ID，确定地图所生成的类型。
+                                                    <br>
+                                                    使用世界预设ID时，需要在其中的“:”前加“\”转义。原版世界预设ID可以省略其前面的“minecraft:”（即命名空间）。
+                                                    <br>
+                                                    minecraft:normal - 带有丘陵，河谷，海洋等的标准的世界。
+                                                    <br>
+                                                    minecraft:flat - 一个没有特性的平坦世界，可用generator-settings修改。
+                                                    <br>
+                                                    minecraft:large_biomes - 如同预设（default）世界，但所有生物群系都更大。
+                                                    <br>
+                                                    minecraft:amplified - 如同预设世界，但世界生成高度提高。
+                                                    <br>
+                                                    minecraft:single_biome_surface - 单一生物群系世界，可用generator-settings修改。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>max-build-height</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.MAX_BUILD_HEIGHT" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    玩家在游戏中能够建造的最大高度。可能会在该值较小时生成超过该值的地形。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>max-players</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.MAX_PLAYERS" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    服务器同时能容纳的最大玩家数量。请注意，在线玩家越多，对服务器造成的负担也就越大。
+                                                    <br>
+                                                    同样注意，服务器的OP具有在人满的情况下强行进入服务器的能力：找到在服务器根目录下叫ops.json的文件并打开，将需要此能力的OP下的bypassesPlayerLimit选项设置为true即可（默认值为false），这意味着OP将不需要在服务器人满时等待有玩家离开后再加入。
+                                                    <br>
+                                                    过大的数值会使客户端显示的玩家列表崩坏。
+                                                    <br>
+                                                    值区间：整数（0-2147483647）
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>max-tick-time</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.MAX_TICK_TIME" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    设置每个tick花费的最大毫秒数。超过该毫秒数时，服务器看门狗将停止服务器程序并附带上信息：服务器的一个tick花费了60.00秒（最长也应该只有0.05秒）；判定服务器已崩溃，它将被强制关闭。遇到这种情况的时候，它会调用 System.exit(1)。
+                                                    <br>
+                                                    译者注：如果你监测服务程序的返回代码，此时返回代码会为1。（习惯上，程序正常退出应当返回0）
+                                                    <br>
+                                                    -1 - 完全停用看门狗（这个停用选项在 14w32a 快照中添加）
+                                                    <br>
+                                                    值区间：整数（0–(2^63 - 1)）
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>max-world-size</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.MAX_WORLD_SIZE" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    设置可让世界边界获得的最大半径值，单位为方块。通过成功执行的命令能把世界边界设置得更大，但不会超过这里设置的最大方块限制。如果设置的 max-world-size 超过默认值的大小，那将不会起任何效果。
+                                                    <br>
+                                                    例如：
+                                                    <br>
+                                                    设置 max-world-size为1000将会有2000×2000的地图边界。
+                                                    <br>
+                                                    设置 max-world-size为4000将会有8000×8000的地图边界。
+                                                    <br>
+                                                    值区间：整数（1-29999984）
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>motd</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.MOTD" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    本属性值是玩家客户端的多人游戏服务器列表中显示的服务器信息，显示于名称下方。
+                                                    <br>
+                                                    MOTD 支持<a href="https://minecraft.fandom.com/zh/wiki/格式化代码" target="_blank">样式代码</a>。
+                                                    <br>
+                                                    MOTD 支持特殊符号，比如"♥"。然而，这些符号需要转换为Unicode转义字符。你可以在<a href="http://www.freeformatter.com/string-utilities.html#charinfo" target="_blank">这里</a>找到一个转换器。
+                                                    <br>
+                                                    如果MOTD超过59个字符，服务器列表很可能会返回“通讯错误”。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>network-compression-threshold</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.NETWORK_COMPRESSION_THRESHOLD" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    默认会允许n-1字节的数据包正常发送, 如果数据包为n字节或更大时会进行压缩。所以，更低的数值会使得更多的数据包被压缩，但是如果被压缩的数据包字节太小将反而使压缩后字节更大。
+                                                    <br>
+                                                    -1 - 完全禁用数据包压缩
+                                                    <br>
+                                                    0 - 压缩全部数据包
+                                                    <br>
+                                                    注：以太网规范要求把小于64字节的数据包填充为64字节。因此，设置一个低于64的值可能没有什么好处。也不推荐让设置的值超过MTU（通常为1500字节）。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>online-mode</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.ONLINE_MODE" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    是否让服务器对比Minecraft账户数据库验证登录信息。 只有在你的服务器并未与 Internet 连接时，才将这个值设为false。
+                                                    <br>
+                                                    如果设为false，黑客就能够使用任意假账户连接服务器！如果minecraft.net服务器宕机或不可访问，那么该值设为true的服务器会因为无法验证玩家身份而拒绝所有玩家加入。
+                                                    <br>
+                                                    通常，这个值设为true的服务器被称为“正版服务器”。故意设定该变量为false的服务器称为“破解服务器”（也称离线服务器），这类服务器允许拥有未授权的Minecraft副本的玩家加入。
+                                                    <br>
+                                                    true - 启用。服务器会认为自己具有 Internet 连接，并检查每一位连入的玩家。
+                                                    <br>
+                                                    false - 禁用。服务器不会尝试检查玩家。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>op-permission-level</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.OP_PERMISSION_LEVEL" size="small">
+                                                <el-option :value="1">1</el-option>
+                                                <el-option :value="2">2</el-option>
+                                                <el-option :value="3">3</el-option>
+                                                <el-option :value="4">4</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    设定使用/op命令时OP的权限等级。所有存档会从之前的存档继承能力和命令。
+                                                    <br>
+                                                    1 - OP可以绕过重生点保护。
+                                                    <br>
+                                                    2 - OP可以使用所有单人游戏作弊命令（除了/publish，因为不能在服务器上使用；/debug也是）并使用命令方块。命令方块和领域服服主/管理员有此等级权限。
+                                                    <br>
+                                                    3 - OP可以使用大多数多人游戏中独有的命令，包括 /debug，以及管理玩家的命令（/ban，/op等等）。
+                                                    <br>
+                                                    4 - OP可以使用所有命令，包括 /stop, /save-all, /save-on 和 /save-off。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>player-idle-timeout</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.PLAYER_IDLE_TIMEOUT" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    如果不为0，服务器将在玩家的空闲时间达到设置的时间（单位为分钟）时将玩家踢出服务器
+                                                    <br>
+                                                    注：当服务器接受到下列数据包之一时将会重置空闲时间：
+                                                    <br>
+                                                    点击窗口
+                                                    <br>
+                                                    附魔物品
+                                                    <br>
+                                                    更新告示牌
+                                                    <br>
+                                                    玩家挖掘方块
+                                                    <br>
+                                                    玩家放置方块
+                                                    <br>
+                                                    更换拿着的物品
+                                                    <br>
+                                                    动画(挥动手臂)
+                                                    <br>
+                                                    实体动作
+                                                    <br>
+                                                    客户端状态
+                                                    <br>
+                                                    聊天信息
+                                                    <br>
+                                                    使用实体
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>prevent-proxy-connections</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.PREVENT_PROXY_CONNECTIONS" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    如果服务器发送的ISP/AS和Mojang的验证服务器的不一样，玩家将会被踢出。
+                                                    <br>
+                                                    true - 启用。服务器将会禁止玩家使用虚拟专用网络或代理。
+                                                    <br>
+                                                    false - 禁用。服务器将不会禁止玩家使用虚拟专用网络或代理。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>pvp</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.PVP" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    是否允许PvP。也只有在允许PvP时玩家自己的箭才会受到伤害。
+                                                    <br>
+                                                    true - 玩家可以互相残杀。
+                                                    <br>
+                                                    false - 玩家无法互相造成伤害（也称作玩家对战环境（PvE））。
+                                                    <br>
+                                                    注：由玩家造成的间接伤害（例如熔岩，火，TNT等，某种程度上还有水，沙子和沙砾）还是会伤害其他玩家。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>query.port</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.QUERY_PORT" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    设置监听服务器的端口号（参见 enable-query）。
+                                                    <br>
+                                                    值区间：整数（1-65534）
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>rcon.password</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.RCON_PASSWORD" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    设置RCON远程访问的密码（参见enable-rcon）。RCON：能允许其他应用程序通过互联网与Minecraft服务器连接并交互的远程控制台协议。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>rcon.port</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.RCON_PORT" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    设置RCON远程访问的端口号。
+                                                    <br>
+                                                    值区间：整数（1-65534)
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>server-port</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.SERVER_PORT" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    改变服务器（监听的）端口号。如果服务器在使用NAT的网络中运行，该端口必须被转发（在你有家用路由器/防火墙的前提下）。
+                                                    <br>
+                                                    值区间：整数（1-65534）
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>simulation-distance</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.SIMULATION_DISTANCE" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    设置服务端可更新实体范围的最大值，即玩家各个方向上的区块数量（是以玩家为中心的半径，不是直径）。超出此范围的实体不会被更新，对玩家也不可见。
+                                                    <br>
+                                                    默认/推荐设置为10，如果有严重卡顿的话，减少该数值。
+                                                    <br>
+                                                    值区间：整数（3-32）
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>spawn-animals</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.SPAWN_ANIMALS" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    决定动物是否可以生成。
+                                                    <br>
+                                                    true - 动物可以正常生成。
+                                                    <br>
+                                                    false - 动物生成后会立即消失。
+                                                    <br>
+                                                    提示：如果你有严重的卡顿，可以设为false。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>spawn-monsters</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.SPAWN_MONSTERS" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    决定攻击型生物（怪物）是否可以生成。
+                                                    <br>
+                                                    true - 启用。怪物会生成于夜晚和黑暗处。
+                                                    <br>
+                                                    false - 禁用。不会有任何怪物。
+                                                    <br>
+                                                    如果difficulty=0（即难度设置为和平）的话，该属性值不会有任何影响。
+                                                    <br>
+                                                    提示：如果你有严重的卡顿，可以设为false。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>spawn-npcs</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.SPAWN_NPCS" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    决定是否生成村民。
+                                                    <br>
+                                                    true - 启用。生成村民。
+                                                    <br>
+                                                    false - 禁用。不会有村民。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>spawn-protection</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.SPAWN_PROTECTION" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    通过将该值进行2x+1的运算来决定出生点的保护半径。设置为1会保护以出生点为中心的3×3方块的区域，2会保护5×5方块的区域，3会保护7×7方块的区域，以此类推。
+                                                    <br>
+                                                    这个选项不在第一次服务器启动时生成，只会在第一个玩家加入服务器时出现。如果服务器没有设置OP，这个选项会自动禁用。
+                                                    <br>
+                                                    设置为0将不会禁用出生点保护，但会保护位于出生点的那一个方块（13w05a前）。
+                                                    <br>
+                                                    设置为0会禁用出生点保护（13w05a起，参见MC-666）。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>sync-chunk-writes</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.SYNC_CHUNK_WRITES" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    启用后区块文件以同步模式写入。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>use-native-transport</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.USE_NATIVE_TRANSPORT" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    是否使用针对Linux平台的数据包收发优化。此选项仅会在Linux平台上生成。
+                                                    <br>
+                                                    true - 启用。启用Linux数据包收发优化。
+                                                    <br>
+                                                    false - 禁用。禁用Linux数据包收发优化。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>view-distance</el-tag>
+                                            :
+                                            <el-input v-model="item.environment.VIEW_DISTANCE" size="small"></el-input>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    设置服务端发送给客户端的世界数据量，也就是设置玩家各个方向上的区块数量（是以玩家为中心的半径，不是直径）。它决定了服务端的可视距离。（另见渲染距离）
+                                                    <br>
+                                                    默认/推荐设置为10，如果有严重卡顿的话，减少该数值。
+                                                    <br>
+                                                    值区间：整数（3-32）
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                        <div class="multiple_attr">
+                                            <el-tag>white-list</el-tag>
+                                            :
+                                            <el-select v-model="item.environment.ENABLE_WHITELIST" size="small">
+                                                <el-option value="false">false</el-option>
+                                                <el-option value="true">true</el-option>
+                                            </el-select>
+                                            <el-tooltip placement="top">
+                                                <div slot="content" class="tooltip_content">
+                                                    启用服务器的白名单。
+                                                    <br>
+                                                    当启用时，只有白名单上的用户才能连接服务器。白名单主要用于私人服务器，例如提供给相识的朋友、通过应用流程谨慎选择的陌生人等。
+                                                    <br>
+                                                    false - 不使用白名单。
+                                                    <br>
+                                                    true - 从whitelist.json文件加载白名单。
+                                                    <br>
+                                                    注: OP会自动被视为在白名单上，所以无需再将OP加入白名单。
+                                                </div>
+                                                <i class="el-icon-question"></i>
+                                            </el-tooltip>
+                                        </div>
+                                    </el-form-item>
+                                </div>
+                            </div>
+                        </el-form>
+                    </div>
+                    <div class="right">
+                    <pre v-text="yaml_code">
+version: "3"
+
+services:
+    mc:
+        image: itzg/minecraft-server:java8
+        ports:
+            - 25565:25565
+        environment:
+            - EULA=TRUE
+            - VERSION=1.12.2
+            - TYPE=FORGE
+            - FORGE_VERSION=14.23.5.2854
+        tty: true
+        stdin_open: true
+        restart: unless-stopped
+        volumes:
+            # attach a directory relative to the directory containing this compose file
+            - ./minecraft-data-1.12.2:/data
+
+    mc1:
+        image: itzg/minecraft-server
+        ports:
+            - 25566:25565
+        environment:
+            - EULA=TRUE
+            - VERSION=1.18
+        tty: true
+        stdin_open: true
+        restart: unless-stopped
+        volumes:
+            # attach a directory relative to the directory containing this compose file
+            - ./minecraft-data-1.18:/data
+                    </pre>
+                </div>
+                </div>
+                <div class="bottom">
+                    <el-button @click="generateYaml">生成</el-button>
+                    <el-button @click="downloadYaml">下载</el-button>
+                </div>
+            </el-main>
+            <el-footer>
+                这是footer
+            </el-footer>
+        </el-container>
+    </div>
+</body>
+</html>

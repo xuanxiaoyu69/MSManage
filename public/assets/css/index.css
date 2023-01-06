@@ -1,0 +1,99 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: SmileySans-Oblique,"Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+}
+
+@font-face {
+    font-family: SmileySans-Oblique;
+    src: url(../fonts/SmileySans-Oblique.ttf.woff2) format('woff2');
+}
+
+[v-cloak]{
+    display: none;
+}
+
+.el-button+.el-button{
+    margin: 0;
+}
+
+[class*=" el-icon-"], [class^=el-icon-]{
+    font-size: 18px;
+}
+
+.el-container{
+    align-items: center;
+}
+
+.el-header{
+    display: flex;
+    align-items: center;
+}
+
+.el-main{
+    height: calc(100vh - 120px);
+    width: 80%;
+    display: flex;
+    gap: 20px;
+    padding: 0;
+    flex-direction: column;
+}
+
+.el-main .flex_content{
+    display: flex;
+    gap: 20px;
+    overflow: auto;
+}
+
+.el-main .flex_content .left{
+    width: 50%;
+    border: 1px solid #dddddd;
+    padding: 10px;
+    overflow: auto;
+}
+
+.el-main .flex_content .left .server_header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background: #dddddd;
+    margin-bottom: 10px;
+}
+
+.el-main .flex_content .left .server_header .button_tools{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.el-main .flex_content .left .multiple_attr{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.el-main .flex_content .left .multiple_attr .tooltip_content{
+    font-size: 16px;
+}
+
+.el-main .flex_content .right{
+    width: 50%;
+    overflow: auto;
+    border: 1px solid #dddddd;
+}
+
+.el-main .flex_content .right pre{
+    padding: 10px;
+}
+
+.el-main .bottom{
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.el-footer{
+    display: flex;
+    align-items: center;
+}

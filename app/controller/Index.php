@@ -2,16 +2,48 @@
 namespace app\controller;
 
 use app\BaseController;
+use Symfony\Component\Yaml\Yaml;
 
 class Index extends BaseController
 {
     public function index()
     {
-        return '<style type="text/css">*{ padding: 0; margin: 0; } div{ padding: 4px 48px;} a{color:#2E5CD5;cursor: pointer;text-decoration: none} a:hover{text-decoration:underline; } body{ background: #fff; font-family: "Century Gothic","Microsoft yahei"; color: #333;font-size:18px;} h1{ font-size: 100px; font-weight: normal; margin-bottom: 12px; } p{ line-height: 1.6em; font-size: 42px }</style><div style="padding: 24px 48px;"> <h1>:) </h1><p> ThinkPHP V' . \think\facade\App::version() . '<br/><span style="font-size:30px;">16载初心不改 - 你值得信赖的PHP框架</span></p><span style="font-size:25px;">[ V6.0 版本由 <a href="https://www.yisu.com/" target="yisu">亿速云</a> 独家赞助发布 ]</span></div><script type="text/javascript" src="https://e.topthink.com/Public/static/client.js"></script><think id="ee9b1aa918103c4fc"></think>';
+        return view();
+//        $value = Yaml::parseFile(public_path() . 'a.yaml');
+//        dump($value);
+//        $d = file_get_contents(public_path() . 'docker-compose.yml');
+//        $y = Yaml::parse($d);
+//        dump($y);
+//        $a = '{"version":"3","services":{"mc":{"image":"itzg\/minecraft-server:java8","ports":["25565:25565"],"environment":["EULA=TRUE","VERSION=1.12.2","TYPE=FORGE","FORGE_VERSION=14.23.5.2854"],"tty":true,"stdin_open":true,"restart":"unless-stopped","volumes":[".\/minecraft-data-1.12.2:\/data"]},"mc1":{"image":"itzg\/minecraft-server","ports":["25566:25565"],"environment":["EULA=TRUE","VERSION=1.18"],"tty":true,"stdin_open":true,"restart":"unless-stopped","volumes":[".\/minecraft-data-1.18:\/data"]}}}';
+//        $a = json_decode($a, true);
+//        $b = Yaml::dump($a);
+//        file_put_contents(public_path() . 'a.yaml', $b);
     }
 
-    public function hello($name = 'ThinkPHP6')
+    public function generate_yaml()
     {
-        return 'hello,' . $name;
+        $data = input();
+//        dump($data);
+        $yaml_data = [
+            'version' => '3'
+        ];
+        foreach ($data['data'] as $k => $v) {
+            $image = 'itzg/minecraft-server';
+            if($v['environment']['VERSION'] <= '1.10' || ($v['environment']['VERSION'] <= '1.17' && $v['environment']['TYPE'] == 'FORGE')){
+                $image = 'itzg/minecraft-server:java8';
+            }
+            $yaml_data[$v['services_name']] = [
+                'image' => $image,
+                'container_name' => !empty($v['container_name']) ? $v['container_name'] : 'mc' . $k,
+                'tty' => true,
+                'stdin_open' => true,
+                'restart' => 'unless-stopped'
+            ];
+            foreach($v['ports'] as $kk => $vv){
+                $yaml_data[$v['services_name']]['ports'][] = "$vv[one]:$vv[two]";
+            }
+        }
+        $b = Yaml::dump($yaml_data);
+        echo $b;
     }
 }
