@@ -22,8 +22,12 @@ class Index extends BaseController
 
     public function generate_yaml()
     {
+        $a = '1.19-pre5';
+        $b = '1.19-rc2';
+        echo $a."\r\n";
+        echo $b."\r\n";
+        echo version_compare($a, $b);die;
         $data = input();
-//        dump($data);
         $yaml_data = [
             'version' => '3'
         ];

@@ -1,8 +1,9 @@
 <?php
 
 use think\migration\Migrator;
+use think\migration\db\Column;
 
-class InitMinecraftVersionData extends Migrator
+class InitForgeVersion extends Migrator
 {
     /**
      * Change Method.
@@ -27,13 +28,11 @@ class InitMinecraftVersionData extends Migrator
      */
     public function change()
     {
-        $table = $this->table('minecraft_versions');
-        $table->addColumn('version', 'string')
+        $table = $this->table('forge_versions');
+        $table->addColumn('mc_version_id', 'integer')
+            ->addColumn('version', 'string')
             ->addColumn('date', 'string')
-            ->addColumn('time', 'integer')
-            ->addColumn('url', 'string')
             ->addColumn('download', 'string')
             ->create();
     }
-
 }
